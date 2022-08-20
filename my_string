@@ -1,0 +1,162 @@
+class my_string
+{
+private:
+    char* _ptr_data;
+    unsigned int _size;
+
+public:
+    my_string() : _ptr_data(nullptr), _size(0) {}
+    my_string(const char* ch)
+    {
+        int new_size = 0;
+        while(ch[new_size] != '\0')
+        {
+            ++new_size;
+        }
+        _size = new_size;
+        _ptr_data = new char[_size + 1];
+        for (int i = 0; i < _size; ++i)
+        {
+            _ptr_data[i] = ch[i];
+        }
+        _ptr_data[_size] = '\0';
+    }
+    my_string(const my_string& str)
+    {
+        _size = str.size();
+        _ptr_data = new char[_size + 1];
+        for (int i = 0; i < _size; ++i)
+        {
+            _ptr_data[i] = str._ptr_data[i];
+        }
+        _ptr_data[_size] = '\0';
+    }
+    my_string(my_string&& str)
+    {
+        _size = str.size();
+        _ptr_data = str._ptr_data;
+        delete_helper(str);
+    }
+    ~my_string()
+    {
+        if (this->_ptr_data == nullptr)
+        {
+            return;
+        }
+        delete_helper(*this);
+    }
+
+public:
+    my_string& operator=(const my_string& str)
+    {
+        if (this == &str)
+        {
+            return *this;
+        }
+        if (_ptr_data != nullptr)
+        {
+            delete[] _ptr_data;
+        }
+        _size = str.size();
+        _ptr_data = new char[_size + 1];
+        for (int i = 0; i < _size; ++i)
+        {
+            _ptr_data[i] = str._ptr_data[i];
+        }
+        _ptr_data[_size] = '\0';
+        return *this;
+    }
+    my_string& operator=(my_string&& str)
+    {
+        if (this == &str)
+        {
+            return *this;
+        }
+        _size = str.size();
+        _ptr_data = str._ptr_data;
+        delete_helper(str);
+        return *this;
+    }
+    my_string operator+(const my_string& str) const
+    {
+        my_string tmp;
+        tmp._size = _size + str.size();
+        tmp._ptr_data = new char[tmp._size + 1];  
+        for (int i = 0, j = 0, t = 0; i < tmp.size(); ++i)
+        {
+            if (j < _size)
+            {
+                tmp._ptr_data[i] = _ptr_data[j];
+                ++j;
+            }
+            else
+            {
+                tmp._ptr_data[i] = str._ptr_data[t];
+                ++t;
+            }
+        }
+        tmp._ptr_data[tmp._size] = '\0';
+        return tmp;
+    }
+    friend std::ostream& operator<<(std::ostream& os, const my_string& str)
+    {
+        os << str._ptr_data;
+        return os;
+    }
+    char operator[](int index)
+    {
+        return _ptr_data[index];
+    }
+
+public:
+    unsigned int size() const
+    {
+        return _size;
+    }
+    void push_back(char ch)
+    {
+        char* tmp = new char[_size + 2];
+        for (int i = 0; i < _size; ++i)
+        {
+            tmp[i] = _ptr_data[i];
+        }
+        tmp[_size] = ch;
+        tmp[_size + 1] = '\0';
+        ++_size;
+        delete[] _ptr_data;
+        _ptr_data = tmp;
+    }
+    void pop_back()
+    {
+        _ptr_data[_size - 1] = _ptr_data[_size];
+        --_size;
+    }
+    int compare(const my_string& str) const
+    {
+        int count = (_size < str.size() ? _size : str.size());
+        for (int i = 0; i <= count; ++i)
+        {
+           if (_ptr_data[i] == str._ptr_data[i])
+           {
+                continue;
+           }
+           else
+           {
+                return _ptr_data[i] - str._ptr_data[i];
+           }
+        }
+        return 0;
+    }
+
+private:
+    void delete_helper(my_string& str)
+    {
+        if (str._ptr_data == nullptr)
+        {
+            return;
+        }
+        str._size = 0;
+        delete[] str._ptr_data;
+        str._ptr_data = nullptr;
+    }
+};
